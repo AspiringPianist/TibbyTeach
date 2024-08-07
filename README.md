@@ -1,6 +1,6 @@
 # AI Educational Companion
 
-![AI Educational Companion](ai_educational_companion.png)
+![AI Educational Companion](tibby.png)
 
 The AI Educational Companion is a cutting-edge tool designed to revolutionize online learning by providing an interactive experience with YouTube video content.
 
