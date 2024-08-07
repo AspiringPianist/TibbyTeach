@@ -1,4 +1,4 @@
-# AI Educational Companion
+# TIibby Teach , Your AI Educational Companion
 
 ![AI Educational Companion](tibby.png)
 
