@@ -34,3 +34,12 @@ flask --app appv2 run
 ```
 
 This will open the website, where you can click the Chatbot section to go there and proceed to use the chatbot.
+
+Chatbot commands
+
+```bash
+/QuizCreate {topic}
+/QuizSubmit
+/Mindmap
+Anything else is treated as a normal query
+```
