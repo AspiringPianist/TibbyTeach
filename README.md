@@ -6,7 +6,7 @@ The AI Educational Companion is a cutting-edge tool designed to revolutionize on
 
 ## Key Features
 
-1. **Video Analysis**: Process any YouTube video for interactive learning.
+1. **Video/PDF Analysis**: Process any YouTube video or PDF for interactive learning.
 2. **Interactive Q&A**: Ask questions about the video content.
 3. **Summary Generation**: Get concise summaries of video content.
 4. **Mind Maps**: Visualize concepts with automatically generated mind maps.
