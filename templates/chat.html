@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot with Media Viewer</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='project.css') }}"/>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Chatbot Column -->
+            <div class="col-md-6 chat-column">
+                <div class="chat">
+                    <div class="card">
+                        <div class="card-header msg_head">
+                            <div class="d-flex bd-highlight">
+                                <div class="img_cont">
+                                    <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img">
+                                </div>
+                                <div class="user_info">
+                                    <span>Anubhav.ai</span>
+                                    <p>Ask me anything!</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="messageFormeight" class="card-body msg_card_body">
+                            <!-- Messages will be dynamically inserted here -->
+                        </div>
+                        <div class="card-footer">                            
+                            
+                            <form id="messageArea" class="input-group">
+                                <input type="text" id="text" name="msg" placeholder="Type your message or paste YouTube link..." autocomplete="off" class="form-control type_msg" required />
+                                <input type="file" id="pdfUpload" accept=".pdf" style="display: none;">
+                                <div class="input-group-append">
+                                    <button type="button" id="uploadPdf" class="input-group-text">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </button>
+                                    <button type="submit" id="send" class="input-group-text send_btn">
+                                        <i class="fas fa-location-arrow"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Viewer Column -->
+            <div class="col-md-6 media-column">
+                <div class="media-viewer">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Media Viewer</h5>
+                            <select id="mediaSelector" class="form-control">
+                                <option value="">Select Media</option>
+                            </select>
+                        </div>
+                        <div class="card-body" id="mediaContent">
+                            <!-- Media content will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Quiz Styles */
+        .quiz-box {
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+    
+        .quiz-box h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+    
+        .question {
+            margin-bottom: 15px;
+        }
+    
+        .question p {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    
+        .question label {
+            display: block;
+            margin-left: 20px;
+        }
+    
+        .quiz-instruction {
+            margin-top: 15px;
+            font-style: italic;
+            color: #666;
+        }
+    
+        .quiz-result {
+            background-color: #e9f7ef;
+            padding: 15px;
+            border-radius: 8px;
+        }
+    
+        .quiz-result h4 {
+            color: #2ecc71;
+            margin-bottom: 10px;
+        }
+    
+        /* Message Styles */
+        .msg_cotainer, .msg_cotainer_send {
+            max-width: 80%;
+            width: auto;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+    
+        .messageText {
+            white-space: pre-wrap;
+        }
+    
+        .sources {
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #666;
+        }
+    
+        .source {
+            margin-bottom: 5px;
+        }
+    
+        /* Loading Styles */
+        .loading {
+            font-style: italic;
+            color: #666;
+        }
+    
+        /* Copy Button Styles */
+        .copy-btn {
+            cursor: pointer;
+            margin-left: 10px;
+        }
+    
+        /* Remove unused styles */
+        /* .submit-quiz-btn, #quizContainer, .quiz-header, #toggleQuiz, .quiz-content */
+    </style>
+    
+    <script>
+    $(document).ready(function() {
+        var mediaList = [];
+        function isYouTubeLink(url) {
+    var regExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)$/;
+    return regExp.test(url);
+}
+
+function processYouTubeLink(url) {
+    $.ajax({
+        url: '/process_youtube',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ url: url }),
+        success: function(response) {
+            console.log("YouTube video processed:", response.message);
+            addMedia('youtube', url);
+        },
+        error: function(xhr, status, error) {
+            console.error("Error processing YouTube video:", error);
+            alert("Error processing YouTube video: " + xhr.responseJSON.error);
+        }
+    });
+}
+let currentQuiz = null;
+
+function generateQuiz(topic) {
+    displayUserMessage(`/Quiz ${topic}`);
+
+    let loadingHtml = `
+        <div class="d-flex justify-content-start mb-4">
+            <div class="img_cont_msg">
+                <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg">
+            </div>
+            <div class="msg_cotainer">
+                <div class="loading">Generating quiz...</div>
+                <span class="msg_time">${new Date().toLocaleTimeString()}</span>
+            </div>
+        </div>
+    `;
+    $("#messageFormeight").append(loadingHtml);
+    scrollToBottom();
+
+    $.ajax({
+        url: '/generate_quiz',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ topic: topic }),
+        success: function(response) {
+            currentQuiz = response;
+            displayQuiz(response);
+            $(".loading").closest(".d-flex").remove(); // Remove loading message
+        },
+        error: function(xhr, status, error) {
+            console.error("Error generating quiz:", error);
+            $(".loading").html('Error generating quiz. Please try again.');
+        }
+    });
+}
+
+function displayQuiz(quiz) {
+    let quizHtml = `
+        <div class="d-flex justify-content-start mb-4">
+            <div class="img_cont_msg">
+                <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg">
+            </div>
+            <div class="msg_cotainer">
+                <div class="quiz-box">
+                    <h3>Quiz on ${quiz.topic}</h3>
+                    <div class="questions">
+                        ${quiz.questions.map((question, index) => `
+                            <div class="question">
+                                <p>${index + 1}. ${question.question.replace(/\n/g, '<br>')}</p>
+                                ${question.choices.map((choice, choiceIndex) => `
+                                    <label>
+                                        <input type="radio" name="q${index}" value="${choiceIndex}">
+                                        ${choice.replace(/\n/g, '<br>')}
+                                    </label>
+                                `).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <p class="quiz-instruction">Type "/QuizSubmit" to submit your answers.</p>
+                </div>
+                <span class="msg_time">${new Date().toLocaleTimeString()}</span>
+            </div>
+        </div>
+    `;
+
+    $("#messageFormeight").append(quizHtml);
+    scrollToBottom();
+}
+
+function submitQuiz() {
+    if (!currentQuiz) {
+        alert("No active quiz to submit!");
+        return;
+    }
+
+    let answers = [];
+    currentQuiz.questions.forEach((question, index) => {
+        let selectedAnswer = $(`input[name="q${index}"]:checked`).val();
+        answers.push(selectedAnswer ? parseInt(selectedAnswer) : null);
+    });
+
+    let loadingHtml = `
+        <div class="d-flex justify-content-start mb-4">
+            <div class="img_cont_msg">
+                <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg">
+            </div>
+            <div class="msg_cotainer">
+                <div class="loading">Submitting quiz...</div>
+                <span class="msg_time">${new Date().toLocaleTimeString()}</span>
+            </div>
+        </div>
+    `;
+    $("#messageFormeight").append(loadingHtml);
+    scrollToBottom();
+
+    $.ajax({
+        url: '/submit_quiz',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ answers: answers }),
+        success: function(response) {
+            $(".loading").closest(".d-flex").remove(); // Remove loading message
+            displayQuizResult(response);
+        },
+        error: function(xhr, status, error) {
+            console.error("Error submitting quiz:", error);
+            $(".loading").html('Error submitting quiz. Please try again.');
+        }
+    });
+}
+
+function displayQuizResult(result) {
+    let resultHtml = `
+        <div class="d-flex justify-content-start mb-4">
+            <div class="img_cont_msg">
+                <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg">
+            </div>
+            <div class="msg_cotainer">
+                <div class="quiz-result">
+                    <h4>Quiz Result</h4>
+                    <p>Your score: ${result.score}/${result.total} (${result.percentage.toFixed(2)}%)</p>
+                </div>
+                <span class="msg_time">${new Date().toLocaleTimeString()}</span>
+            </div>
+        </div>
+    `;
+    $("#messageFormeight").append(resultHtml);
+    scrollToBottom();
+    currentQuiz = null;
+}
+
+function displayUserMessage(message) {
+    let userMessageHtml = `
+        <div class="d-flex justify-content-end mb-4">
+            <div class="msg_cotainer_send">
+                ${message}
+                <span class="msg_time_send">${new Date().toLocaleTimeString()}</span>
+            </div>
+            <div class="img_cont_msg">
+                <img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg">
+            </div>
+        </div>
+    `;
+    $("#messageFormeight").append(userMessageHtml);
+}
+
+        $("#messageArea").on("submit", function(event) {
+            event.preventDefault();
+            const date = new Date();
+            const hour = String(date.getHours()).padStart(2, '0');
+            const minute = String(date.getMinutes()).padStart(2, '0');
+            const str_time = hour + ':' + minute;
+            var rawText = $("#text").val();
+            if (rawText.trim() === "") {
+                return;
+            }
+            if (rawText.startsWith("/QuizCreate")) {
+        var topic = rawText.substring(5).trim();
+        generateQuiz(topic);
+        $("#text").val("");
+    } else if (rawText.trim() === "/QuizSubmit") {
+        displayUserMessage("/QuizSubmit");
+        submitQuiz();
+        $("#text").val("");
+    } 
+
+            else if (isYouTubeLink(rawText)) {
+                addMedia('youtube', rawText);
+                processYouTubeLink(rawText);
+                $("#text").val("");
+            } else {
+                var userHtml = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send user_message">' + escapeHtml(rawText) + '<span class="msg_time_send">' + str_time + '</span><i class="fas fa-copy copy-btn" onclick="copyToClipboard(this)"></i></div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
+                $("#text").val("");
+                $("#messageFormeight").append(userHtml);
+                scrollToBottom();
+
+                $.ajax({
+                    type: "POST",
+                    url: "/send",
+                    data: { msg: rawText },
+                    success: function() {
+                        const source = new EventSource(`/stream?msg=${encodeURIComponent(rawText)}`);
+                        var botHtml = `
+    <div class="d-flex justify-content-start mb-4">
+        <div class="img_cont_msg">
+            <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img_msg">
+        </div>
+        <div class="msg_cotainer">
+            <div class="messageText"></div>
+            <span class="blinking-cursor">|</span>
+            <div class="sources"></div>
+            <span class="msg_time">${str_time}</span>
+            <i class="fas fa-copy copy-btn" onclick="copyToClipboard(this)"></i>
+        </div>
+    </div>`;
+                       var botMessageElement = $($.parseHTML(botHtml)).appendTo("#messageFormeight");
+                        scrollToBottom();
+
+                        let messageText = botMessageElement.find(".messageText")[0];
+                        let cursor = botMessageElement.find(".blinking-cursor")[0];
+source.onmessage = function(event) {
+    if (event.data.trim() === "[EOS]") {
+        cursor.remove();
+    } else if (event.data.trim() === "[DONE]") {
+        source.close();
+    } else if (event.data.startsWith("SOURCE:")) {
+        // Handle sources here
+        let sourceText = event.data.substring(7);
+        let sourceElement = $('<div class="source"></div>').text(sourceText);
+        botMessageElement.find('.sources').append(sourceElement);
+    } else {
+        let decodedText = $('<div/>').html(event.data).text(); // This decodes the HTML entities
+        let formattedText = decodedText.replace(/\n/g, '<br>'); // Replace newlines with <br> tags
+        let messageTextElement = botMessageElement.find('.messageText');
+        messageTextElement.append(formattedText);
+        scrollToBottom();
+    }
+};
+
+
+
+                        source.onerror = function() {
+                            var errorHtml = '<div class="d-flex justify-content-start mb-4"><div class="msg_cotainer">Error: Could not reach the server.<span class="msg_time">' + str_time + '</span></div></div>';
+                            $("#messageFormeight").append($.parseHTML(errorHtml));
+                            scrollToBottom();
+                            source.close();
+                        };
+                    }
+                });
+            }
+        });
+
+        $("#uploadPdf").click(function() {
+    $("#pdfUpload").click();
+});
+
+$("#pdfUpload").change(function(e) {
+    var file = e.target.files[0];
+    if (file && file.type === "application/pdf") {
+        var formData = new FormData();
+        formData.append('file', file);
+        
+        $.ajax({
+            url: '/upload_pdf',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                alert(response.message);
+                addMedia('pdf', URL.createObjectURL(file), file.name);
+            },
+            error: function(xhr, status, error) {
+                alert("Error uploading file: " + xhr.responseJSON.error);
+            }
+        });
+    }
+});
+
+$("#toggleQuiz").on("click", function() {
+    $("#quizContainer").toggleClass("collapsed");
+    $(this).text($("#quizContainer").hasClass("collapsed") ? "▼" : "▲");
+});
+
+
+        function addMedia(type, content, name) {
+            var mediaItem = { type: type, content: content, name: name || content };
+            mediaList.push(mediaItem);
+            updateMediaSelector();
+            $("#mediaSelector").val(mediaList.length - 1).change();
+        }
+
+        function updateMediaSelector() {
+            var $selector = $("#mediaSelector");
+            $selector.empty().append('<option value="">Select Media</option>');
+            mediaList.forEach(function(item, index) {
+                $selector.append(`<option value="${index}">${item.name}</option>`);
+            });
+        }
+
+        $("#mediaSelector").change(function() {
+            var index = $(this).val();
+            if (index !== "") {
+                displayMedia(mediaList[index]);
+            } else {
+                $("#mediaContent").empty();
+            }
+        });
+
+        function displayMedia(mediaItem) {
+            var $mediaContent = $("#mediaContent");
+            $mediaContent.empty();
+
+            if (mediaItem.type === 'youtube') {
+    var videoId = getYouTubeVideoId(mediaItem.content);
+    $mediaContent.html(`<div class="video-container"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe></div>`);
+}
+
+else if (mediaItem.type === 'pdf') {
+    var height = $mediaContent.height();
+    $mediaContent.html(`<embed src="${mediaItem.content}" type="application/pdf" width="100%" height="${height}px" />`);
+}
+
+        }
+
+
+        function scrollToBottom() {
+    var chatContainer = document.getElementById("messageFormeight");
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+        function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+window.copyToClipboard = function(element) {
+    const messageContainer = $(element).closest('.msg_cotainer, .msg_cotainer_send');
+    let textToCopy;
+    
+    function getTextWithNewlines(element) {
+        return $(element).html().replace(/<br\s*[\/]?>/gi, "\n").replace(/&nbsp;/g, ' ');
+    }
+    
+    if (messageContainer.hasClass('user_message')) {
+        textToCopy = messageContainer.clone().children().remove().end().text().trim();
+    } else {
+        const messageText = getTextWithNewlines(messageContainer.find(".messageText")).trim();
+        const sourcesText = messageContainer.find(".sources").text().trim();
+        textToCopy = messageText + (sourcesText ? "\n\nSources:\n" + sourcesText : "");
+    }
+    
+    // Remove any extra newlines that might have been introduced
+    textToCopy = textToCopy.replace(/\n{3,}/g, '\n\n');
+    
+    navigator.clipboard.writeText(textToCopy).then(function() {
+        alert('Copied to clipboard');
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+    });
+};
+
+
+
+
+        function isYouTubeLink(str) {
+            return str.match(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/);
+        }
+
+        function getYouTubeVideoId(url) {
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+    });
+    </script>
+</body>
+</html>

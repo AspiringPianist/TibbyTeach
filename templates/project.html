@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Platform</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='project.css') }}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+
+
+
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">Tibby Teach</div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="/courses">Chatbot</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="search-box">
+            <input type="text" placeholder="Search for videos..." id="search-input">
+            <button onclick="searchVideo()">Search</button>
+        </div>
+        <button id="theme-toggle" class="theme-toggle">
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
+        </button>
+    </nav>
+
+    <div class="slider">
+        <div class="slides">
+            <!-- Slide 1 -->
+            <div class="slide">
+                <h2>Welcome to EduPlatform</h2>
+                <p>Your gateway to knowledge and success</p>
+            </div>
+            <!-- Slide 2 -->
+            <div class="slide">
+                <h2>Learn Anytime, Anywhere</h2>
+                <p>Flexible learning schedules for everyone</p>
+            </div>
+            <!-- Slide 3 -->
+            <div class="slide">
+                <h2>Interactive Courses</h2>
+                <p>Engage with content like never before</p>
+            </div>
+        </div>
+        <div class="navigation">
+            <span class="nav-btn" onclick="currentSlide(1)"></span>
+            <span class="nav-btn" onclick="currentSlide(2)"></span>
+            <span class="nav-btn" onclick="currentSlide(3)"></span>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="about">
+            <h2>About Us</h2>
+            <div class="about-content">
+                <div class="about-item">
+                    <img src="https://via.placeholder.com/100" alt="Team 131 Labs">
+                    <h3>Team 131 Labs</h3>
+                    <p>We are a passionate team from lablab.ai, dedicated to revolutionizing education through AI-powered solutions.</p>
+                </div>
+                <div class="about-item">
+                    <img src="https://via.placeholder.com/100" alt="Our Mission">
+                    <h3>Our Mission</h3>
+                    <p>To create innovative learning experiences that empower students and educators worldwide.</p>
+                </div>
+                <div class="about-item">
+                    <img src="https://via.placeholder.com/100" alt="Our Vision">
+                    <h3>Our Vision</h3>
+                    <p>A future where personalized, AI-enhanced education is accessible to everyone, everywhere.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 EduPlatform. All rights reserved.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='project.js') }}"></script>
+   
+</body>
+</html>

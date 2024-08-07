@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot - EduPlatform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='project.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">EduPlatform</div>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="/courses">Courses</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <button id="theme-toggle" class="theme-toggle">
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
+        </button>
+    </nav>
+
+    <div class="chatbot-container">
+        <div class="chat-column">
+            <div class="chat">
+                <div class="card">
+                    <div class="card-header msg_head">
+                        <div class="d-flex bd-highlight">
+                            <div class="img_cont">
+                                <img src="https://i.ibb.co/fSNP7Rz/icons8-chatgpt-512.png" class="rounded-circle user_img">
+                            </div>
+                            <div class="user_info">
+                                <span>EduBot</span>
+                                <p>Ask me anything about the course!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="messageFormeight" class="card-body msg_card_body">
+                        <!-- Messages will be dynamically inserted here -->
+                    </div>
+                    <div class="card-footer">
+                        <form id="messageArea" class="input-group">
+                            <input type="text" id="text" name="msg" placeholder="" autocomplete="off" class="form-control type_msg" required />
+                            <div class="placeholder-text">Type a message or use /QuizCreate to start a quiz</div>
+                            <div class="input-group-append">
+                                <button type="button" id="uploadPdf" class="input-group-text">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                                <button type="submit" id="send" class="input-group-text send_btn">
+                                    <i class="fas fa-location-arrow"></i>
+                                </button>
+                            </div>
+                            <input type="file" id="pdfUpload" accept=".pdf" style="display: none;">
+                        </form>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="media-column">
+            <div id="mediaViewer">
+                <div class="media-selector">
+                    <select id="mediaSelect" class="form-control">
+                        <option value="">Select media</option>
+                    </select>
+                </div>
+                <div class="media-content">
+                    <!-- Media content will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 EduPlatform. All rights reserved.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='project.js') }}"></script>
+    <script src="{{ url_for('static', filename='chatbot.js') }}"></script>
+</body>
+</html>
