@@ -1,3 +1,19 @@
+# AI Educational Companion
+
+![AI Educational Companion](ai_educational_companion.png)
+
+The AI Educational Companion is a cutting-edge tool designed to revolutionize online learning by providing an interactive experience with YouTube video content.
+
+## Key Features
+
+1. **Video Analysis**: Process any YouTube video for interactive learning.
+2. **Interactive Q&A**: Ask questions about the video content.
+3. **Summary Generation**: Get concise summaries of video content.
+4. **Mind Maps**: Visualize concepts with automatically generated mind maps.
+5. **Quizzes**: Test your knowledge with content-based quizzes.
+
+## How To Use
+
 First install the requirements.
 
 We are using Ollama for local embeddings via the nomic-embed-text model.
