@@ -1,0 +1,13 @@
+flask
+langchain
+langchain-community
+edge-tts
+uuid
+json
+pydantic
+argparse
+os
+shutil
+langchain_text_splitters
+youtube-transcript-api
+google-api-python-client
