@@ -33,6 +33,7 @@ You can then cd into the repository folder and run this:
 flask --app appv2 run
 ```
 
+![Chatbot page](https://github.com/AspiringPianist/TibbyTeach/blob/main/bg?raw=True)
 This will open the website, where you can click the Chatbot section to go there and proceed to use the chatbot.
 
 Chatbot commands
